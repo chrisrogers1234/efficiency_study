@@ -92,13 +92,13 @@ def get_analysis(datasets, name, tof01_min_max, data_dir, p_bins, tkd_cut, do_gl
             "do_magnet_alignment":False,
             "do_efficiency":False, #True,
             "do_fractional_emittance":False, #True,
-            "do_amplitude":True,
-            "do_density":False, #True,
+            "do_amplitude":False, #True,
+            "do_density":True,
             "do_extrapolation":False,
             "do_globals":False, #do_globals,
             "do_mc":False, #True,
             "do_plots":False, #True,
-            "do_cuts_plots":True,
+            "do_cuts_plots":False, #True,
             "do_tof01_weighting":False,
             "do_optics":False,
             "do_data_recorder":False,
@@ -303,6 +303,10 @@ class Config(object):
     residuals_plots_nbins = 100 # used for track extrapolation plots
     extrapolation_does_apertures = True # set to True in order to include apertures in track extrapolation
     maus_verbose_level = 5
+
+    amplitude_bin_width = 5
+    amplitude_min_events = 100
+    amplitude_min_bin = 0
 
     fractional_emittance_bins = [0., 5., 10., 15., 20., 30., 50.]
     fractional_emittance_fraction = 0.09

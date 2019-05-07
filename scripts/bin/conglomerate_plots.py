@@ -1017,10 +1017,9 @@ def main_paper(batch_level = 0):
 #                   CompareAmplitudeConfigMC,
 #                   CompareAmplitudeConfigData
 #                   ]
-    fd_1 = run_conglomerate(batch_level, config_list, my_dir_list, do_cuts_summary, target_dir, top_labels, right_labels)
-    my_dir_list = numpy.array(my_dir_list).transpose().tolist()
+#    fd_1 = run_conglomerate(batch_level, config_list, my_dir_list, do_cuts_summary, target_dir, top_labels, right_labels)
     config_list = [CompareDensityRatioConfig, CompareDensityConfig]#,  CompareFractionalEmittanceConfig, 
-#    fd_2 = run_conglomerate(batch_level, config_list, my_dir_list, False, target_dir, top_labels, right_labels)
+    fd_2 = run_conglomerate(batch_level, config_list, my_dir_list, False, target_dir, top_labels, right_labels)
     print_fail_dict(fd_1)
     print_fail_dict(fd_2)
 
