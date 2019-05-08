@@ -30,7 +30,7 @@ class DensityAnalysis(AnalysisBase):
         self.rotate = self.config.density_knn_rotate
         self.uncertainty = self.config.density_uncertainty
         self.npoints = self.config.density_npoints
-        self.density_max = 50*1e-9
+        self.density_max = 100*1e-9
 
         # Initialize the data containers
         self.a_dir = tempfile.mkdtemp()
@@ -235,7 +235,7 @@ class DensityAnalysis(AnalysisBase):
         count = 0.
         for i, n_events in enumerate(reversed(pdf)):
             count += n_events
-            cdf[i] = count
+            cdf[-1-i] = count
         return cdf
 
     def corrections_and_uncertainties(self, typ):
@@ -431,7 +431,7 @@ class DensityAnalysis(AnalysisBase):
         """
         # Initialize the graphs
         graphs = {}
-        y_norm = 1./self.density_data["reco"]["us"]["corrected_cdf"][-1]
+        y_norm = 1./self.density_data["reco"]["us"]["corrected_cdf"][0]
         for loc in self.locations:
             if is_mc:
                 graphs[loc+"_all_mc_pdf"] = self.make_graph("all_mc", loc, "pdf", None, 1e9, y_norm)
@@ -458,7 +458,7 @@ class DensityAnalysis(AnalysisBase):
         canvas_name = 'density_cdf_correction'
         canvas = self.get_plot(canvas_name)["pad"]
         mg = self.make_multigraph(graphs, "density_cdf_correction")
-        leg = self.make_multigraph_legend(graphs, [.2, .65, .4, .85])
+        leg = self.make_multigraph_legend(graphs, [.6, .65, .8, .85])
         for fmt in ["pdf", "png", "root"]:
             canvas.Print(self.plot_dir+"/"+canvas_name+"."+fmt)
 
@@ -725,6 +725,7 @@ class DensityAnalysis(AnalysisBase):
         # Set base correction factors
         self.load_corrections(self.config_anal["density_corrections"])
 
+        return
         # Load systematic uncertainties
         systematics = self.config_anal["density_systematics"]
         for typ in systematics:
@@ -760,8 +761,14 @@ class DensityAnalysis(AnalysisBase):
         density_str = fin.read()
         src_density = json.loads(density_str)
         src_density["source"] = file_name
-        self.density_data["inefficiency"] = src_density["inefficiency"]
-        self.density_data["response"] = src_density["response"]
+        for typ in self.data_types:
+            if not (typ == "reco" or self.config_anal["density_mc"]):
+                continue
+            for loc in self.locations:
+                self.density_data[typ][loc]["migration_matrix"] = \
+                                      src_density[typ][loc]["migration_matrix"]
+                self.density_data[typ][loc]["pdf_ratio"] = \
+                                      src_density[typ][loc]["pdf_ratio"]
 
     def load_one_error(self, file_name, scale):
         """

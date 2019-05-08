@@ -22,7 +22,7 @@ def reco_file_names(run_number_list, maus, do_globals):
     return file_list
 
 def get_systematics_dir(emittance, suffix, absorber, analysis):
-    a_dir = "output/2017-02-7-Systematics-v4/plots_Simulated_2017-2.7_"+str(emittance)+\
+    a_dir = "output/2017-02-7-Systematics-v6/plots_Simulated_2017-2.7_"+str(emittance)+\
            "-140_"+absorber+"_Systematics_"+suffix+"/"+analysis+"/"+analysis+".json"
     return a_dir
 
@@ -286,7 +286,7 @@ class Config(object):
     cut_report[4] += ["hline", "mc_true_ds_cut", "hline"]
 
     data_dir = "output/2017-02-7-test/"
-    files = "0"
+    files = "?"
     analyses = []
 
     analyses.append(get_analysis("10064_v400/"+files, "Simulated 2017-2.7 4-140 lH2 empty", [1.5, 6.0], data_dir, 4, 32))

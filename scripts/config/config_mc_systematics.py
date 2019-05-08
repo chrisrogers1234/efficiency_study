@@ -208,7 +208,7 @@ class Config(object):
     analyses = []
 
 
-    files = "000?"
+    files = "00??"
     lih_systematics_list = [
       "mc_base", "mc_lih_plus"
     ]
