@@ -252,5 +252,11 @@ class kNNDensityEstimator(object):
 
     # Returns the Gaussian uncertainty associated with a contour level
     def level_uncertainty(self, frac):
-        return pow(4./(frac*(1-frac)), 1./4)/math.sqrt(self.n)
+        product = frac*(1-frac)
+        if abs(product) < 1e-9 or abs(self.n) < 1e-9:
+            return 0.
+        return pow(4./product, 1./4)/math.sqrt(self.n)
 
+    # Return the Gaussian uncertainty associated with a number of events in a bin
+    def bin_uncertainty(self, n_bin):
+        return self.level_uncertainty(1.*n_bin/self.n)*self.n

@@ -208,7 +208,7 @@ class Config(object):
     analyses = []
 
 
-    files = "00??"
+    files = "000?"
     lih_systematics_list = [
       "mc_base", "mc_lih_plus"
     ]
@@ -228,9 +228,9 @@ class Config(object):
     suffix = None
     vers = "v8"
     run_list = [
-        ["10", "10052", [1.5, 4.5], vers, "lH2 empty", suffix, cuts, files, empty_systematics_list],
         ["4",  "10064", [1.5, 6.0], vers, "lH2 empty", suffix, cuts, files, empty_systematics_list],
         ["6",  "10051", [1.5, 5.5], vers, "lH2 empty", suffix, cuts, files, empty_systematics_list],
+        ["10", "10052", [1.5, 4.5], vers, "lH2 empty", suffix, cuts, files, empty_systematics_list],
         ["4",  "9962", [1.5, 6.0], vers, "lH2 full", suffix, cuts, files, lh2_systematics_list],
         ["6",  "9966", [1.5, 5.5], vers, "lH2 full", suffix, cuts, files, lh2_systematics_list],
         ["10", "9970", [1.5, 4.5], vers, "lH2 full", suffix, cuts, files, lh2_systematics_list],
@@ -315,8 +315,10 @@ class Config(object):
     density_nthreads = 1
     density_knn_rotate = True # rotate to eigenvector system
     density_uncertainty = False # assume Gaussian for errors; True - use subsampling for errors
-    density_npoints = 100
+    density_npoints = 150
     density_graph_scaling = 1e9
+    density_max = 150.*1e-9
+    density_averaging_threshold = 1e-3 # take average for tail bin correction up to threshold
 
     magnet_alignment = {
         "n_events":10,

@@ -80,6 +80,7 @@ class Analyser(object):
             if i >= len(self.config.analyses):
                 continue
             self.config_anal = self.config.analyses[i]
+            print "Working in", self.config_anal["plot_dir"]
             try:
                 self.init_phase()
                 self.birth_phase()
@@ -153,7 +154,7 @@ class Analyser(object):
         if self.config_anal["do_density"]:
             ############ NOTE NOTE NOTE ##############
             print "Doing kNN density estimation"
-      	    self.analysis_list.append(mice_analysis.density_analysis_rogers.DensityAnalysis(self.config, self.config_anal, self.data_loader))
+      	    self.analysis_list.append(mice_analysis.density_analysis.DensityAnalysis(self.config, self.config_anal, self.data_loader))
         if self.config_anal["do_data_recorder"]:
             print "Doing data recorder"
             self.analysis_list.append(mice_analysis.data_recorder.DataRecorder(self.config, self.config_anal, self.data_loader))
@@ -203,7 +204,6 @@ if __name__ == "__main__":
         print "Usage: python calculate_emittance.py </path/to/config/script> [analyses list]"
         sys.exit(1)
     analyser = Analyser()
-    print "initiated"
     analysis_indices = [int(i) for i in sys.argv[2:]]
     analyser.do_analysis(analysis_indices)
     print "Done - press <CR> to finish"

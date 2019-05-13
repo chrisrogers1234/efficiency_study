@@ -224,23 +224,24 @@ class Config(object):
     cut_report[2] += ["extrapolation_cut", "hline"]
 
 
-    data_dir = "output/2017-02-7-v11/"
-    src_dir = "MAUS-Drielsma-ReFit"
+    data_dir = "output/2017-02-7-v12/"
+    src_dir = "Production-v3"
     analyses = []
-    analyses.append(get_analysis([10064], "2017-2.7 4-140 lH2 empty", [1.5, 6.0], src_dir, data_dir, 4, [[135, 145]], [90, 170], 32))
-    analyses.append(get_analysis([9962],  "2017-2.7 4-140 lH2 full",  [1.5, 6.0], src_dir, data_dir, 4, [[135, 145]], [90, 170], 32))
-    analyses.append(get_analysis([10484], "2017-2.7 4-140 LiH",       [1.5, 6.0], src_dir, data_dir, 4, [[135, 145]], [90, 170], 32))
-    analyses.append(get_analysis([10445], "2017-2.7 4-140 None",      [1.5, 6.0], src_dir, data_dir, 4, [[135, 145]], [90, 170], 32))
 
-    analyses.append(get_analysis([10051], "2017-2.7 6-140 lH2 empty", [1.5, 5.5], src_dir, data_dir, 6, [[135, 145]], [90, 170], 35))
-    analyses.append(get_analysis([9966],  "2017-2.7 6-140 lH2 full",  [1.5, 5.5], src_dir, data_dir, 6, [[135, 145]], [90, 170], 35))
-    analyses.append(get_analysis([10485], "2017-2.7 6-140 LiH",       [1.5, 5.5], src_dir, data_dir, 6, [[135, 145]], [90, 170], 35))
-    analyses.append(get_analysis([10446], "2017-2.7 6-140 None",      [1.5, 5.5], src_dir, data_dir, 6, [[135, 145]], [90, 170], 35))
+    analyses.append(get_analysis([10022, 10028, 10034, 10040, 10047, 10064, 10071], "2017-2.7 4-140 lH2 empty", [1.5, 6.0], src_dir, data_dir, 4, [[135, 145]], [90, 170], 32))
+    analyses.append(get_analysis([9948, 9950, 9958, 9962],  "2017-2.7 4-140 lH2 full",  [1.5, 6.0], src_dir, data_dir, 4, [[135, 145]], [90, 170], 32))
+    analyses.append(get_analysis([10480, 10484, 10489], "2017-2.7 4-140 LiH",       [1.5, 6.0], src_dir, data_dir, 4, [[135, 145]], [90, 170], 32))
+    analyses.append(get_analysis([10445, 10449, 10453, 10461], "2017-2.7 4-140 None",      [1.5, 6.0], src_dir, data_dir, 4, [[135, 145]], [90, 170], 32))
 
-    analyses.append(get_analysis([10052], "2017-2.7 10-140 lH2 empty", [1.5, 4.5], src_dir, data_dir, 10, [[135, 145]], [90, 170], 70))
-    analyses.append(get_analysis([9970],  "2017-2.7 10-140 lH2 full",  [1.5, 4.5], src_dir, data_dir, 10, [[135, 145]], [90, 170], 70))
-    analyses.append(get_analysis([10486], "2017-2.7 10-140 LiH",       [1.5, 4.5], src_dir, data_dir, 10, [[135, 145]], [90, 170], 70))
-    analyses.append(get_analysis([10447], "2017-2.7 10-140 None",      [1.5, 4.5], src_dir, data_dir, 10, [[135, 145]], [90, 170], 70))
+    analyses.append(get_analysis([10023, 10029, 10036, 10042, 10051, 10066, 10067, 10073], "2017-2.7 6-140 lH2 empty", [1.5, 5.5], src_dir, data_dir, 6, [[135, 145]], [90, 170], 35))
+    analyses.append(get_analysis([9949, 9959, 9960, 9963, 9966, 9972, 9976],  "2017-2.7 6-140 lH2 full",  [1.5, 5.5], src_dir, data_dir, 6, [[135, 145]], [90, 170], 35))
+    analyses.append(get_analysis([10481, 10485, 10487], "2017-2.7 6-140 LiH",       [1.5, 5.5], src_dir, data_dir, 6, [[135, 145]], [90, 170], 35))
+    analyses.append(get_analysis([10446, 10450, 10454, 10459, 10460, 10463], "2017-2.7 6-140 None",      [1.5, 5.5], src_dir, data_dir, 6, [[135, 145]], [90, 170], 35))
+
+    analyses.append(get_analysis([10024, 10026, 10030, 10035, 10037, 10041, 10043, 10048, 10052, 10053, 10065, 10068, 10072, 10074, 10077], "2017-2.7 10-140 lH2 empty", [1.5, 4.5], src_dir, data_dir, 10, [[135, 145]], [90, 170], 70))
+    analyses.append(get_analysis([9953, 9964, 9967, 9969, 9970],  "2017-2.7 10-140 lH2 full",  [1.5, 4.5], src_dir, data_dir, 10, [[135, 145]], [90, 170], 70))
+    analyses.append(get_analysis([10482, 10486, 10490], "2017-2.7 10-140 LiH",       [1.5, 4.5], src_dir, data_dir, 10, [[135, 145]], [90, 170], 70))
+    analyses.append(get_analysis([10447, 10451, 10452, 10455], "2017-2.7 10-140 None",      [1.5, 4.5], src_dir, data_dir, 10, [[135, 145]], [90, 170], 70))
 
     required_trackers = [0, 1] # for space points
     required_number_of_track_points = 12 # doesnt do anything
@@ -248,7 +249,7 @@ class Config(object):
     global_max_step_size = 100. # for extrapolation, set the extrapolation step size
     will_load_tk_space_points = True # determines whether data loader will attempt to load tracker space points
     will_load_tk_track_points = True # determines whether data loader will attempt to load tracker track points
-    number_of_spills = None # if set to an integer, limits the number of spills loaded for each sub-analysis
+    number_of_spills = 100 # if set to an integer, limits the number of spills loaded for each sub-analysis
     preanalysis_number_of_spills = 500 # number of spills to analyse during "pre-analysis"
     analysis_number_of_spills = 100 # number of spills to analyse during each "analysis" step
     momentum_from_tracker = True # i.e. not from TOFs
@@ -275,8 +276,9 @@ class Config(object):
     density_nthreads = 1
     density_knn_rotate = True # rotate to eigenvector system
     density_uncertainty = False # assume Gaussian for errors; True - use subsampling for errors
-    density_npoints = 100
+    density_npoints = 150
     density_graph_scaling = 1e9
+    density_max = 150.*1e-9
 
     magnet_alignment = {
         "n_events":10,

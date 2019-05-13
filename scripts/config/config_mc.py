@@ -22,7 +22,7 @@ def reco_file_names(run_number_list, maus, do_globals):
     return file_list
 
 def get_systematics_dir(emittance, suffix, absorber, analysis):
-    a_dir = "output/2017-02-7-Systematics-v6/plots_Simulated_2017-2.7_"+str(emittance)+\
+    a_dir = "output/2017-02-7-Systematics-v7/plots_Simulated_2017-2.7_"+str(emittance)+\
            "-140_"+absorber+"_Systematics_"+suffix+"/"+analysis+"/"+analysis+".json"
     return a_dir
 
@@ -337,8 +337,9 @@ class Config(object):
     density_nthreads = 1
     density_knn_rotate = True # rotate to eigenvector system
     density_uncertainty = False # assume Gaussian for errors; True - use subsampling for errors
-    density_npoints = 100
+    density_npoints = 150
     density_graph_scaling = 1e9
+    density_max = 150.*1e-9
 
     magnet_alignment = {
         "n_events":10,
