@@ -22,13 +22,17 @@ def reco_file_names(run_number_list, maus, do_globals):
     return file_list
 
 def get_systematics_dir(emittance, suffix, absorber, analysis):
-    a_dir = "output/2017-02-7-Systematics-v7/plots_Simulated_2017-2.7_"+str(emittance)+\
+    a_dir = "output/2017-02-7-Systematics-v6/plots_Simulated_2017-2.7_"+str(emittance)+\
            "-140_"+absorber+"_Systematics_"+suffix+"/"+analysis+"/"+analysis+".json"
     return a_dir
 
 def get_systematics(emittance, analysis):
-    us_name = {"amplitude":"all_upstream", "density":"us", "fractional_emittance":"us"}[analysis]
-    ds_name = {"amplitude":"all_downstream", "density":"ds", "fractional_emittance":"ds"}[analysis]
+    us_name, ds_name = {
+        "amplitude":("all_upstream", "all_downstream"),
+        "density":("us", "ds"), 
+        "density_rogers":("us", "ds"),
+        "fractional_emittance":("us", "ds")
+    }[analysis]
 
     systematics = {
       "all_mc":{
@@ -167,15 +171,22 @@ def get_analysis(datasets, name, tof01_min_max, data_dir, emittance, tramlines_d
                                                       "lH2_empty",
                                                       "density"),
             "density_systematics":get_systematics(emittance, "density"),
+            "density_rogers_corrections":get_systematics_dir(emittance,
+                                                      "tku_base",
+                                                      "lH2_empty",
+                                                      "density_rogers"),
+            "density_rogers_systematics":get_systematics(emittance, "density_rogers"),
             "density_corrections_draw":True,    # True if density correctoins are to be drawn
             "density_systematics_draw":True,    # True if density systematics are to be drawn
             "density_sections":False,           # True if density sections are to be printed
+            "density_use_capped":True,          # True if density sections are to be printed
 
             "do_extrapolation":False,
             "do_magnet_alignment":False,
             "do_fractional_emittance":False,
-            "do_amplitude":False, #True,
+            "do_amplitude":False ,#True,
             "do_density":True,
+            "do_density_rogers":True,
             "do_efficiency":False, #True,
             "do_globals":False, #True,
             "do_mc":False, #True,
@@ -285,8 +296,8 @@ class Config(object):
     cut_report[4] += ["mc_stations_ds", "mc_scifi_fiducial_ds", "mc_p_ds"]
     cut_report[4] += ["hline", "mc_true_ds_cut", "hline"]
 
-    data_dir = "output/2017-02-7-test/"
-    files = "?"
+    data_dir = "output/2017-02-7-v13/"
+    files = "*"
     analyses = []
 
     analyses.append(get_analysis("10064_v400/"+files, "Simulated 2017-2.7 4-140 lH2 empty", [1.5, 6.0], data_dir, 4, 32))
@@ -340,6 +351,7 @@ class Config(object):
     density_npoints = 150
     density_graph_scaling = 1e9
     density_max = 150.*1e-9
+    density_averaging_threshold = -1. # take average for tail bin correction up to threshold
 
     magnet_alignment = {
         "n_events":10,

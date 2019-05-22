@@ -128,12 +128,12 @@ class DensityAnalysis(AnalysisBase):
     def append_data(self):
         """
         Add data to the fractional amplitude calculation (done at death time)
-        
-        If amplitude_mc is false, we take 'tku' data from upstream_cut sample 
+
+        If amplitude_mc is false, we take 'tku' data from upstream_cut sample
         and 'tkd' data from downstream_cut sample
-        
+
         If density_mc is true, then we build a couple of additional samples
-        1. all_mc is for MC truth of all events that should have been included 
+        1. all_mc is for MC truth of all events that should have been included
            in the sample (some of which might have been missed by recon; some in
            recon sample maybe should have been excluded)
         2. reco_mc is for MC truth of all events that should have been included
@@ -186,7 +186,7 @@ class DensityAnalysis(AnalysisBase):
 
     def make_profiles(self, typ):
         """
-        Produces density profiles. Extract a numpy ndarray that contains all of 
+        Produces density profiles. Extract a numpy ndarray that contains all of
         the phase space vectors, initialize the kNN density estimator and extract
         the density profile with its uncertainty
         * typ specifies the type of data (all_mc, reco_mc, reco)
@@ -255,25 +255,25 @@ class DensityAnalysis(AnalysisBase):
 
         self.density_data[typ] = data
 
-    def do_corrections(self, ref_source, typ, loc, source, use_capped = True):
+    def do_corrections(self, ref_source, typ, loc, source):
         """
         Applies the corrections to the requested density profile
         Only applies response correction to the reconstructed sample
         * typ specifies the type of data (all_mc, reco_mc, reco)
         * loc specifies the location of the tracker (us, ds)
         * source specifies the source of the corrections to be used
-        * Use capped corrections if use_capped is True
         """
+        print "density_analysis.do_corrections", ref_source[typ][loc].keys()
         levels = np.array(ref_source[typ][loc]["levels"])
         corr_key = "level_ratio"
-        if use_capped:
+        if self.config_anal["density_use_capped"]:
             corr_key = "level_ratio_capped"
         if typ == "reco":
             response = np.array(source["response"][loc][corr_key])
-            levels = levels*response
+            levels = (1.+levels)*response-1.
         if typ == "reco" or typ == "reco_mc":
             inefficiency = np.array(source["inefficiency"][loc][corr_key])
-            levels = levels*inefficiency
+            levels = (1.+levels)*inefficiency-1.
 
         return levels.tolist()
 
@@ -398,8 +398,8 @@ class DensityAnalysis(AnalysisBase):
 
     def draw_systematics(self):
         """
-        Draws the systematic errors. The uncertainty on each level corresponds to the 
-        residuals between the reference reconstruction set and the data sets that 
+        Draws the systematic errors. The uncertainty on each level corresponds to the
+        residuals between the reference reconstruction set and the data sets that
         are shifted from the reference set
         """
         # Feed the systematics graphs to the drawer
@@ -492,7 +492,7 @@ class DensityAnalysis(AnalysisBase):
                     print """
                   Warning - I did something hacky; I ran the systematics calculation
                   with a 1e9 scale factor and then the main analysis without the scale factor; so
-                  now there is a discrepancy. If I rerun the systematics they will come out 1e9 
+                  now there is a discrepancy. If I rerun the systematics they will come out 1e9
                   too low and I will need to scale them (e.g. *scale_factor) like everywhere else.
                   Systematic error was """+str(syst_err)
                 all_err = (syst_err**2+all_err**2)**0.5
@@ -549,6 +549,7 @@ class DensityAnalysis(AnalysisBase):
         gratio = ROOT.TGraphErrors(self.npoints)
         gratio_full = ROOT.TGraphErrors(self.npoints)
         gratio_multi.SetTitle(";Fraction #alpha;#rho_{#alpha}^{d} /#rho_{#alpha}^{u}")
+        print "Making the ratio plot for", typ
         for i in range(self.npoints):
             us, ds = graphs["us"].GetY()[i], graphs["ds"].GetY()[i]
             use, dse = graphs["us"].GetEY()[i], graphs["ds"].GetEY()[i]
@@ -558,6 +559,7 @@ class DensityAnalysis(AnalysisBase):
             gratio.GetY()[i] = ratio
             gratio.GetEY()[i] = dse/us
 
+            use, dse = graphs_full["us"].GetEY()[i], graphs_full["ds"].GetEY()[i]
             gratio_full.GetX()[i] = gratio.GetX()[i]
             gratio_full.GetEX()[i] = gratio.GetEX()[i]
             gratio_full.GetY()[i] = ratio
@@ -565,6 +567,7 @@ class DensityAnalysis(AnalysisBase):
             us_rel_err = dse/us
             ds_rel_err = ratio*use/us
             gratio_full.GetEY()[i] = (us_rel_err**2 + ds_rel_err**2)**0.5
+            print i, ratio, us_rel_err, ds_rel_err, gratio_full.GetEY()[i]
 
         self.plots[name+"_"+typ]["graphs"]["ratio"] = gratio
         self.plots[name+"_"+typ]["graphs"]["ratio_full"] = gratio_full
@@ -604,22 +607,16 @@ class DensityAnalysis(AnalysisBase):
             inefficiency, response = [], []
             for i in range(len(all_mc_levels)):
                 # Inherent detector inefficiency
-                if reco_mc_levels[i] == 0:
-                    inefficiency.append(1.)
-                else:
-                    inefficiency.append(float(all_mc_levels[i])/reco_mc_levels[i])
+                inefficiency.append(float(1.+all_mc_levels[i])/(1.+reco_mc_levels[i]))
 
                 # Detector response function
-                if reco_levels[i] == 0:
-                    response.append(1.)
-                else:
-                    response.append(float(reco_mc_levels[i])/reco_levels[i])
+                response.append(float(1.+reco_mc_levels[i])/(1.+reco_levels[i]))
 
             # Produce a capped version of the corrections
             cutoff = self.config_anal["density_corrections_cutoff"]
             cutoff_index = int(cutoff*(self.npoints+1.))
-            ineff_cap = all_mc_levels[cutoff_index]/reco_mc_levels[cutoff_index]
-            resp_cap = reco_mc_levels[cutoff_index]/reco_levels[cutoff_index]
+            ineff_cap = inefficiency[cutoff_index]
+            resp_cap = response[cutoff_index]
 
             inefficiency_capped = copy.deepcopy(inefficiency)
             response_capped = copy.deepcopy(response)
@@ -642,13 +639,23 @@ class DensityAnalysis(AnalysisBase):
         Draw the correction factors used
         """
         for loc in self.locations:
-            inefficiency = self.density_data["inefficiency"][loc]["level_ratio"]
+            levels = np.array(self.density_data["reco"][loc]["levels"])
+
             response = self.density_data["response"][loc]["level_ratio"]
+            levels_corr = (1.+levels)*response-1.
+            response = [levels_corr[i]/levels[i] if levels[i] > 0. else 1. for i in range(len(levels))]
+            inefficiency = self.density_data["inefficiency"][loc]["level_ratio"]
+            levels_corr_2 = (1.+levels_corr)*inefficiency-1.
+            inefficiency = [levels_corr_2[i]/levels_corr[i] if levels[i] > 0. else 1. for i in range(len(levels))]
             plotter = DensityPlotter(self.plot_dir, loc)
             plotter.plot_corrections(inefficiency, response)
 
-            inefficiency = self.density_data["inefficiency"][loc]["level_ratio_capped"]
             response = self.density_data["response"][loc]["level_ratio_capped"]
+            levels_corr = (1.+levels)*response-1.
+            response = [levels_corr[i]/levels[i] if levels[i] > 0. else 1. for i in range(len(levels))]
+            inefficiency = self.density_data["inefficiency"][loc]["level_ratio_capped"]
+            levels_corr_2 = (1.+levels_corr)*inefficiency-1.
+            inefficiency = [levels_corr_2[i]/levels_corr[i] if levels[i] > 0. else 1. for i in range(len(levels))]
             plotter = DensityPlotter(self.plot_dir, "capped_"+loc)
             plotter.plot_corrections(inefficiency, response)
 
@@ -661,21 +668,21 @@ class DensityAnalysis(AnalysisBase):
           "inefficiency":{
               "us":{
                   "level_ratio":[1. for i in range(self.npoints)],
-                      "level_ratio_capped":[1. for i in range(self.npoints)]
+                  "level_ratio_capped":[1. for i in range(self.npoints)]
               },
               "ds":{
                   "level_ratio":[1. for i in range(self.npoints)],
-                      "level_ratio_capped":[1. for i in range(self.npoints)]
+                  "level_ratio_capped":[1. for i in range(self.npoints)]
               },
           },
           "response":{
               "us":{
                   "level_ratio":[1. for i in range(self.npoints)],
-                      "level_ratio_capped":[1. for i in range(self.npoints)]
+                  "level_ratio_capped":[1. for i in range(self.npoints)]
               },
               "ds":{
                   "level_ratio":[1. for i in range(self.npoints)],
-                      "level_ratio_capped":[1. for i in range(self.npoints)]
+                  "level_ratio_capped":[1. for i in range(self.npoints)]
               },
           },
           "source":"",
@@ -687,16 +694,16 @@ class DensityAnalysis(AnalysisBase):
             "performance_reference":None,
             "detector_reference":None,
             "us":{
-                    "levels":[],
-                    "corrected_levels":[],
+                "levels":[],
+                "corrected_levels":[],
                 "levels_stat_errors":[],
                 "levels_syst_errors":[],
                 "detector_systematics":[],
                 "performance_systematics":[],
             },
             "ds":{
-                    "levels":[],
-                    "corrected_levels":[],
+                "levels":[],
+                "corrected_levels":[],
                 "levels_stat_errors":[],
                 "levels_syst_errors":[],
                 "detector_systematics":[],
@@ -711,7 +718,7 @@ class DensityAnalysis(AnalysisBase):
         """
         Two "classes" of systematic errors;
         * systematic errors on the reconstruction are contained in the
-          correction factors. For these we store the correction factors and 
+          correction factors. For these we store the correction factors and
           compare to the reference correction factors
         * systematic errors on the performance are contained in the actual
           density profile. For these we store the point-by-point fractional
@@ -756,6 +763,7 @@ class DensityAnalysis(AnalysisBase):
         analysis. Loads the correction factors
         """
         fin = open(file_name)
+        print "Loading", file_name
         density_str = fin.read()
         src_density = json.loads(density_str)
         src_density["source"] = file_name

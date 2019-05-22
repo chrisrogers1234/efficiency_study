@@ -368,7 +368,7 @@ class CompareCutsConfig(CompareConfig):
     def __init__(self, beam, target_dir, top_labels, right_labels):
         dir_list = [
             target_dir+"plots_"+beam+"/",
-            target_dir+"plots_Simulated_"+beam
+            target_dir+"plots_Simulated_"+beam+"/",
         ]
         self.setup(beam, target_dir, "cut_plots/", "compare_cuts/", dir_list)
         mod = {
@@ -874,7 +874,7 @@ class CompareAmplitudeConfigData(CompareConfig): # data plots
                                         ["CDF_Ratio stats", "CDF_Ratio sys"], x_range = [0.01, 99.9], y_range = [0.601, 1.399], replace_hist = True,
                                         graph_draw_option = ["p", "2"], graph_marker_style=[20, 20], graph_marker_color=[1, 1], graph_draw_order=[1,0], modifiers=ratio_modifiers),
             self.get_conglomerate_graph("amplitude_pdf_reco", "Amplitude [mm]",
-                                        "Number",
+                                        "Normalised Number of Events",
                                         "amplitude_pdf_reco", ["Upstream sys hist"],
                                         ["Raw upstream", "Upstream stats", "Upstream sys", "Raw downstream", "Downstream stats", "Downstream sys"],
                                         x_range = [0.01, 99.9], y_range = [0.001, 1.24], replace_hist = True,
@@ -994,7 +994,7 @@ def main_paper(batch_level = 0):
     fd_1, fd_2 = {}, {}
     root_style.setup_gstyle()
     ROOT.gROOT.SetBatch(True)
-    target_dir = "output/2017-02-7-v11/"
+    target_dir = "output/2017-02-7-v12/"
     batch_level = 0
     hide_root_errors = True
     do_cuts_summary = True
@@ -1008,18 +1008,18 @@ def main_paper(batch_level = 0):
     ]
     top_labels = ["4-140", "6-140", "10-140"]
     right_labels = ["No\nabsorber", "Empty\nLH2", "Full\nLH2", "LiH"]
-    config_list = [CompareCutsConfig, #CompareData1DConfig,
-#                   CompareOpticsConfig, CompareOpticsMCConfig,
-#                   CompareGlobalsConfig, CompareMCConfig,
-#                   CompareData2DConfig, CompareData2DMCConfig,
+    config_list = [CompareCutsConfig, CompareData1DConfig,
+                   CompareOpticsConfig, CompareOpticsMCConfig,
+                   CompareGlobalsConfig, CompareMCConfig,
+                   CompareData2DConfig, CompareData2DMCConfig,
                   ]
-#    config_list += [CompareAmplitudeConfigBoth,
-#                   CompareAmplitudeConfigMC,
-#                   CompareAmplitudeConfigData
-#                   ]
-#    fd_1 = run_conglomerate(batch_level, config_list, my_dir_list, do_cuts_summary, target_dir, top_labels, right_labels)
+    config_list = [#CompareAmplitudeConfigBoth,
+                   #CompareAmplitudeConfigMC,
+                   CompareAmplitudeConfigData
+                   ]
+    fd_1 = run_conglomerate(batch_level, config_list, my_dir_list, do_cuts_summary, target_dir, top_labels, right_labels)
     config_list = [CompareDensityRatioConfig, CompareDensityConfig]#,  CompareFractionalEmittanceConfig, 
-    fd_2 = run_conglomerate(batch_level, config_list, my_dir_list, False, target_dir, top_labels, right_labels)
+    #fd_2 = run_conglomerate(batch_level, config_list, my_dir_list, False, target_dir, top_labels, right_labels)
     print_fail_dict(fd_1)
     print_fail_dict(fd_2)
 

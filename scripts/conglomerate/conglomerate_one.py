@@ -447,7 +447,7 @@ class ConglomerateOne(object):
         if not self.options["mice_logo"]:
             return
         # goes around the outside for black
-        text_box = ROOT.TPaveText(0.65, 0.8, 0.89, 0.89, "NDC")
+        text_box = ROOT.TPaveText(0.64, 0.8, 0.84, 0.89, "NDC")
         text_box.SetFillColor(0)
         text_box.SetBorderSize(0)
         text_box.SetTextSize(0.04)
@@ -455,7 +455,7 @@ class ConglomerateOne(object):
         text_box.AddText("MICE Internal")
         text_box.Draw()
         self.root_objects.append(text_box)
-        text_box = ROOT.TPaveText(0.65, 0.74, 0.89, 0.8, "NDC")
+        text_box = ROOT.TPaveText(0.64, 0.74, 0.84, 0.8, "NDC")
         text_box.SetFillColor(0)
         text_box.SetBorderSize(0)
         text_box.SetTextSize(0.03)
@@ -464,12 +464,12 @@ class ConglomerateOne(object):
         text_box.AddText("and 2017/03")
         text_box.Draw()
         self.root_objects.append(text_box)
-        text_box = ROOT.TPaveText(0.65, 0.65, 0.89, 0.74, "NDC")
+        text_box = ROOT.TPaveText(0.64, 0.65, 0.84, 0.72, "NDC")
         text_box.SetFillColor(0)
         text_box.SetBorderSize(0)
         text_box.SetTextSize(0.03)
         text_box.SetTextAlign(12)
-        text_box.AddText(str(self.config.channel))
+        #text_box.AddText(str(self.config.channel))
         text_box.AddText(str(self.config.beamline))
         text_box.AddText(str(self.config.absorber))
         text_box.Draw()

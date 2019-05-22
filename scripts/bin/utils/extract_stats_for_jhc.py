@@ -55,24 +55,27 @@ class ExtractCoolingStats(object):
         return pdf_1_alt, pdf_2_alt
 
     def pdf_ds_chi2(self, us_ds, n_bins):
-        print self.all_data.keys()
         chi2_table = []
         bl_list = ["4-140", "6-140", "10-140"]
-        for abs_pair in [("LiH", "None"), ("lH2 full", "lH2 empty")]:
-            chi2_table.append([abs_pair[0]+" vs "+abs_pair[1]])
-            for bl in bl_list:
-                conf_1 = bl+" "+abs_pair[0]
-                conf_2 = bl+" "+abs_pair[1]
-                pdf_1 = self.all_data[conf_1]["reco"][us_ds]["pdf"]
-                pdf_2 = self.all_data[conf_2]["reco"][us_ds]["pdf"]
-                pdf_1, pdf_2 = self.stats_mangle(pdf_1, pdf_2)
-                pdf_1 = numpy.array(pdf_1)
-                pdf_2 = numpy.array(pdf_2)
-                chisq, p = scipy.stats.chisquare(pdf_1[:n_bins], pdf_2[:n_bins])
-                chi2_table[-1].append([chisq, p])
-                print "    chi square test "+conf_1+ " vs "+conf_2+" "+us_ds
-                print "        Chi^2", chisq, "p", p
-        print
+        abs_list = ["LiH", "None", "lH2 full", "lH2 empty"]
+        for i in range(4):
+            for j in range(i+1, 4):
+                abs_pair = (abs_list[i], abs_list[j])
+                chi2_table.append([abs_pair[0]+" vs "+abs_pair[1]])
+                for bl in bl_list:
+                    conf_1 = bl+" "+abs_pair[0]
+                    conf_2 = bl+" "+abs_pair[1]
+                    pdf_1 = self.all_data[conf_1]["reco"][us_ds]["pdf"]
+                    pdf_2 = self.all_data[conf_2]["reco"][us_ds]["pdf"]
+                    pdf_1, pdf_2 = self.stats_mangle(pdf_1, pdf_2)
+                    pdf_1 = numpy.array(pdf_1)
+                    pdf_2 = numpy.array(pdf_2)
+                    chisq, p = scipy.stats.chisquare(pdf_1[:n_bins], pdf_2[:n_bins])
+                    chi2_table[-1].append([chisq, p])
+                    #print "    chi square test "+conf_1+ " vs "+conf_2+" "+us_ds
+                    #print "        Chi^2", chisq, "p", p
+        us_ds = us_ds.replace("all_", "")
+        print "Doing chi2 test for", us_ds, "with", n_bins, "bins"
         print "".ljust(25),
         for bl in bl_list:
             print "&", "\multicolumn{2}{c}{"+bl+"}",
@@ -97,7 +100,6 @@ class ExtractCoolingStats(object):
             chi2_table.append([an_abs])
             for bl, cdf_bin in bl_bin_list:
                 conf = bl+" "+an_abs
-                print conf
                 pdf_1 = self.all_data[conf]["reco"]["all_upstream"]["corrected_pdf"]
                 pdf_2 = self.all_data[conf]["reco"]["all_downstream"]["corrected_pdf"]
                 err_1 = self.all_data[conf]["reco"]["all_upstream"]["pdf_sum_errors"]
@@ -109,7 +111,7 @@ class ExtractCoolingStats(object):
                 err_2 = self.all_data[conf]["reco"]["all_downstream"]["cdf_sum_errors"]
                 chi2_val, chi2_p = self.chi2(cdf_1, err_1, cdf_2, err_2, [cdf_bin])
                 chi2_table[-1].append([chi2_val, chi2_p])
-        print
+        print "Chi2 comparing upstream to downstream distributions"
         print "".ljust(10),
         for bl, cdf_bin in bl_bin_list:
             print "&", "\multicolumn{2}{c}{"+bl+"}",
@@ -138,11 +140,11 @@ class ExtractCoolingStats(object):
         chi2_val = sum(delta_list)
         dof = len(bin_list)
         chi2_p = scipy.stats.chi2.cdf(chi2_val, dof)
-        print "    ", chi2_val, 1-chi2_p
+        #print "    ", chi2_val, 1-chi2_p
         return chi2_val, 1-chi2_p
 
 def main():
-    prefix = "output/2017-02-7-v10/"
+    prefix = "output/2017-02-7-v12/"
     stats = ExtractCoolingStats()
     stats.rows = ["None", "lH2_empty", "lH2_full", "LiH",]
     bin_headings = [("4-140"), ("6-140"), ("10-140")]
@@ -154,10 +156,12 @@ def main():
                 suffix = "/amplitude/amplitude.json"
                 a_glob = prefix+"plots"+real+"2017-2.7_"+emittance+"*"+absorber+"*"+suffix
                 job_name = stats.extract(a_glob)
-                #stats.print_one_dataset()
-    stats.pdf_ds_chi2("all_upstream", 21)
-    stats.pdf_ds_chi2("all_downstream", 21)
-    print "\n"
+                stats.print_one_dataset()
+    print "\n\n\n"
+    stats.pdf_ds_chi2("all_upstream", 15)
+    print
+    stats.pdf_ds_chi2("all_downstream", 15)
+    print "\n\n\n"
     stats.pdf_us_ds_chi2(6)
 
 if __name__ == "__main__":

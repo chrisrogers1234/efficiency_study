@@ -49,7 +49,7 @@ class kNNDensityEstimator(object):
             Ut = np.matrix(eigvec).transpose()
             self.metric = invLsqrt*Ut
 
-            # d) Rotate all the points 
+            # d) Rotate all the points
             for i in range(self.n):
                 x = self.metric*np.matrix(data[i]).transpose()
                 self.data[i] = x.transpose()
@@ -59,7 +59,6 @@ class kNNDensityEstimator(object):
         self.kdtree = sp.spatial.cKDTree(self.data)
 
         # Initialize a container for the contour levels
-        # Rogers note: I think "levels" really is a list of density for each event
         self.levels = []
 
     # Evaluate the kNN density in x
@@ -75,6 +74,7 @@ class kNNDensityEstimator(object):
     #  -npoints Number of points contained in the graph (number of steps)
     #  -bsr     Use bootstrap resampling to evaluate uncertainties
     #  -bsr_n   Number of iterations of the bootstrap resampling
+    #  -scaling Global scaling factor
     def profile(self, npoints=1000, bsr=False, bsr_n=10, scaling=1.):
         # Set the levels of the training set if they have not been set yet
         if not len(self.levels):
@@ -107,7 +107,7 @@ class kNNDensityEstimator(object):
                 self.__init__(sample, self.rotate, self.nthreads, self.norm)
                 self.set_levels()
 
-                # Evaluate the array of levels of the new sample	        
+                # Evaluate the array of levels of the new sample
                 for i in range(npoints):
                     alpha = (float(i+1)/(npoints+1))
                     levels[i][j] = 0.
@@ -127,9 +127,9 @@ class kNNDensityEstimator(object):
         return values, errors
 
     # Returns the density profile as a graph
-    #  -npoints	Number of points contained in the graph (number of steps)
-    #  -bsr	Use bootstrap resampling to evaluate uncertainties
-    #  -bsr_n	Number of iterations of the bootstrap resampling
+    #  -npoints Number of points contained in the graph (number of steps)
+    #  -bsr     Use bootstrap resampling to evaluate uncertainties
+    #  -bsr_n   Number of iterations of the bootstrap resampling
     def profile_graph(self, npoints=1000, bsr=False, bsr_n=10):
 
         # Initialize the graph
@@ -155,7 +155,7 @@ class kNNDensityEstimator(object):
     def section(self, axes, x=[], mins=[], maxs=[]):
 
         # Check that the dimension of the section is supported and sensible
-        secdim = len(axes)	
+        secdim = len(axes)
         if not secdim:
             raise ValueError('No axis(es) specified')
         if secdim > 2:

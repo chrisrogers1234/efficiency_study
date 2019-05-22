@@ -15,13 +15,17 @@ def reco_file_names(run_number_list, maus):
     return file_list
 
 def get_systematics_dir(emittance, suffix, absorber, analysis):
-    a_dir = "output/2017-02-7-Systematics-v4/plots_Simulated_2017-2.7_"+str(emittance)+\
+    a_dir = "output/2017-02-7-Systematics-v6/plots_Simulated_2017-2.7_"+str(emittance)+\
            "-140_"+absorber+"_Systematics_"+suffix+"/"+analysis+"/"+analysis+".json"
     return a_dir
 
 def get_systematics(emittance, analysis="amplitude"):
-    us_name = {"amplitude":"all_upstream", "density":"us", "fractional_emittance":"us"}[analysis]
-    ds_name = {"amplitude":"all_downstream", "density":"ds", "fractional_emittance":"ds"}[analysis]
+    us_name, ds_name = {
+        "amplitude":("all_upstream", "all_downstream"),
+        "density":("us", "ds"), 
+        "density_rogers":("us", "ds"),
+        "fractional_emittance":("us", "ds")
+    }[analysis]
     systematics = {
       "reco":{
         "detector_reference":get_systematics_dir(emittance, "tku_base", "lH2_empty", analysis),
@@ -119,20 +123,24 @@ def get_analysis(run_list, name, tof01_min_max, maus_version, data_dir, emittanc
             "density_corrections_draw":True,    # True if density correctoins are to be drawn
             "density_systematics_draw":True,    # True if density systematics are to be drawn
             "density_sections":False,           # True if density sections are to be printed
+            "density_use_capped":True,          # True if density sections are to be printed
+            "density_rogers_corrections":get_systematics_dir(emittance, "tku_base", "lH2_empty", "density_rogers"),
+            "density_rogers_systematics":get_systematics(emittance, "density_rogers"),
 
             "do_mc":False,
             "do_magnet_alignment":False,
             "do_fractional_emittance":False,
             "do_efficiency":False,
             "do_extrapolation":False,
-            "do_globals":True,
-            "do_amplitude":True,
+            "do_globals":False, #True,
+            "do_amplitude":False, #True,
             "do_density":True,
-            "do_plots":True,
-            "do_cuts_plots":True,
+            "do_density_rogers":True,
+            "do_plots":False, #True,
+            "do_cuts_plots":False, #True,
             "do_tof01_weighting":False,
-            "do_optics":True,
-            "do_data_recorder":True,
+            "do_optics":False, #True,
+            "do_data_recorder":False, #True,
     }
     return analysis_variables
 
@@ -224,7 +232,7 @@ class Config(object):
     cut_report[2] += ["extrapolation_cut", "hline"]
 
 
-    data_dir = "output/2017-02-7-v12/"
+    data_dir = "output/2017-02-7-v13/"
     src_dir = "Production-v3"
     analyses = []
 
@@ -249,7 +257,7 @@ class Config(object):
     global_max_step_size = 100. # for extrapolation, set the extrapolation step size
     will_load_tk_space_points = True # determines whether data loader will attempt to load tracker space points
     will_load_tk_track_points = True # determines whether data loader will attempt to load tracker track points
-    number_of_spills = 100 # if set to an integer, limits the number of spills loaded for each sub-analysis
+    number_of_spills = None # if set to an integer, limits the number of spills loaded for each sub-analysis
     preanalysis_number_of_spills = 500 # number of spills to analyse during "pre-analysis"
     analysis_number_of_spills = 100 # number of spills to analyse during each "analysis" step
     momentum_from_tracker = True # i.e. not from TOFs
@@ -279,6 +287,7 @@ class Config(object):
     density_npoints = 150
     density_graph_scaling = 1e9
     density_max = 150.*1e-9
+    density_averaging_threshold = -1. # take average for tail bin correction up to threshold
 
     magnet_alignment = {
         "n_events":10,

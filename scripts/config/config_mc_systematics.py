@@ -88,12 +88,14 @@ def get_analysis(datasets, name, tof01_min_max, data_dir, p_bins, tkd_cut, do_gl
             "density_corrections_draw":True,    # True if density correctoins are to be drawn
             "density_systematics_draw":True,    # True if density systematics are to be drawn
             "density_sections":False,           # True if density sections are to be printed
+            "density_use_capped":True,          # True if density sections are to be printed
 
             "do_magnet_alignment":False,
             "do_efficiency":False, #True,
             "do_fractional_emittance":False, #True,
             "do_amplitude":False, #True,
             "do_density":True,
+            "do_density_rogers":True,
             "do_extrapolation":False,
             "do_globals":False, #do_globals,
             "do_mc":False, #True,
@@ -204,11 +206,11 @@ class Config(object):
     cut_report[5] = ["hline", "downstream_cut", "hline",]
     cut_report[5] += ["mc_stations_ds", "mc_scifi_fiducial_ds", "mc_p_ds",]
 
-    data_dir = "output/2017-02-7-Systematics-test"
+    data_dir = "output/2017-02-7-Systematics-v6"
     analyses = []
 
 
-    files = "000?"
+    files = "*"
     lih_systematics_list = [
       "mc_base", "mc_lih_plus"
     ]
@@ -318,7 +320,7 @@ class Config(object):
     density_npoints = 150
     density_graph_scaling = 1e9
     density_max = 150.*1e-9
-    density_averaging_threshold = 1e-3 # take average for tail bin correction up to threshold
+    density_averaging_threshold = -1. # take average for tail bin correction up to threshold
 
     magnet_alignment = {
         "n_events":10,

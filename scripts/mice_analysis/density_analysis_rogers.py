@@ -40,6 +40,7 @@ class DensityAnalysis(AnalysisBase):
         self.locations = ("us", "ds")
         self.data = {}
         self.density_data = {}
+        self.delta = 1.0
         for typ in self.data_types:
             self.data[typ] = {}
             self.density_data[typ] = {}
@@ -64,7 +65,7 @@ class DensityAnalysis(AnalysisBase):
         Resets all the data containers and loads the uncertainties
         """
         # Create directory, clear the data containers
-        self.set_plot_dir("density")
+        self.set_plot_dir("density_rogers")
         for typ in self.data_types:
             for loc in self.locations:
                 self.data[typ][loc].clear()
@@ -222,9 +223,10 @@ class DensityAnalysis(AnalysisBase):
             key_value_pairs = [(id_data[i], levels[i]) for i in range(n_events)]
             density_dict = dict(key_value_pairs)
             self.density_data[typ][loc]["densities"] = density_dict
-            pdf, bx = np.histogram(density_estimator.levels, self.npoints-1, (0., self.density_max))
+#            pdf, bx = np.histogram(density_estimator.levels, self.npoints-1, (0., self.density_max))
+            pdf, bx = np.histogram(density_estimator.levels, self.npoints, (0., self.density_max))
             pdf = pdf.tolist()
-            pdf.append(len(levels)-sum(pdf))
+            #pdf.append(len(levels)-sum(pdf))
 
             cdf = self.make_cdf(pdf)
             self.density_data[typ][loc]["pdf"] = pdf
@@ -241,6 +243,8 @@ class DensityAnalysis(AnalysisBase):
                 cdf_stats = [0. for cdf_bin in cdf]
             self.density_data[typ][loc]["pdf_stat_errors"] = pdf_stats
             self.density_data[typ][loc]["cdf_stat_errors"] = cdf_stats
+            self.delta = sum(pdf)/self.npoints/100.
+            print "Density correction with delta", self.delta
 
     @classmethod
     def make_cdf(cls, pdf):
@@ -438,6 +442,7 @@ class DensityAnalysis(AnalysisBase):
             step = self.density_max/(self.npoints-1)
             hist_2d = [[0. for i in range(self.npoints)] for j in range(self.npoints)]
             efficiency_corr = [1. for i in range(self.npoints)]
+            reco_hist_tot = 1.*sum(reco_hist)
 
             #### BUILD 2D migration ########
             for key in sorted(reco_mc_dens.keys()):
@@ -452,7 +457,6 @@ class DensityAnalysis(AnalysisBase):
                     bin_2 = self.npoints-1
                 hist_2d[bin_1][bin_2] += 1.
             ##### AVERAGING tail bins #########
-            reco_hist_tot = 1.*sum(reco_hist)
             reco_hist_ave = 0.
             reco_mc_hist_ave = 0.
             max_bin = self.npoints
@@ -493,7 +497,7 @@ class DensityAnalysis(AnalysisBase):
             ##### CALCULATE corrections ########
             for i in range(self.npoints):
                 for j in range(self.npoints):
-                    if reco_hist[j] > 0.5:
+                    if reco_hist[j] > self.delta:
                         hist_2d[i][j] = hist_2d[i][j]/reco_hist[j]
                     elif i == j:
                         hist_2d[i][j] = 1.
@@ -501,8 +505,10 @@ class DensityAnalysis(AnalysisBase):
                         hist_2d[i][j] = 0.
                     if i < 5 and j < 5 and False:
                         print "  migration", i, j, ":", hist_2d[i][j], reco_hist[j]
-                if reco_mc_hist[i] > 0.5:
-                    efficiency_corr[i] = 1.0*all_mc_hist[i]/reco_mc_hist[i]
+                if reco_mc_hist[i]:
+                    efficiency_corr[i] = all_mc_hist[i]/reco_mc_hist[i]
+                else:
+                    efficiency_corr[i] = 1.
 
             self.density_data["reco"][loc]["migration_matrix"] = hist_2d
             self.density_data["reco"][loc]["pdf_ratio"] = efficiency_corr
@@ -528,15 +534,25 @@ class DensityAnalysis(AnalysisBase):
             for i in range(r0, r1):
                 print format(i, "6.4g"),
             print
-            print "  RECO:",
+            print "\nH i 75:",
+            for x in hist_2d[r0:r1]:
+                print format(x[75], "6.4g"),
+            print "\nH 75 i:",
+            for x in hist_2d[75][r0:r1]:
+                print format(x, "6.4g"),
+            print "\nEff[i]:",
+            for x in efficiency_corr[r0:r1]:
+                print format(x, "6.4g"),
+            print "\n  RECO:",
             for x in reco_hist[r0:r1]:
                 print format(x, "6.4g"),
-            print
-            print "  MC:  ",
+            print "\n  R MC:",
+            for x in reco_mc_hist[r0:r1]:
+                print format(x, "6.4g"),
+            print "\n  T MC:",
             for x in all_mc_hist[r0:r1]:
                 print format(x, "6.4g"),
-            print
-            print "  TEST:",
+            print "\n  TEST:",
             for x in mc_test[r0:r1]:
                 print format(x, "6.4g"),
             print
@@ -546,6 +562,8 @@ class DensityAnalysis(AnalysisBase):
         Get the migration from upstream to downstream
         """
         for typ in self.data_types:
+            if not (self.config_anal["density_mc"] or typ == "reco"):
+                continue
             print "Building migration for", typ
             us_dens = self.density_data[typ]["us"]["densities"]
             ds_dens = self.density_data[typ]["ds"]["densities"]
@@ -600,8 +618,10 @@ class DensityAnalysis(AnalysisBase):
             ###### CALCULATE migration
             for i in range(self.npoints):
                 for j in range(self.npoints):
-                    if us_hist[j] > 0.5:
+                    if us_hist[j] > self.delta:
                         hist_2d[i][j] = hist_2d[i][j]/us_hist[j]
+                    elif i == j:
+                        hist_2d[i][j] = 1.
                     else:
                         hist_2d[i][j] = 0.
 
@@ -611,7 +631,7 @@ class DensityAnalysis(AnalysisBase):
             ds_test = self.do_corrections(self.density_data[typ],
                                           self.density_data[typ]["us"])
 
-            r0, r1 = 30, 50
+            r0, r1 = 50, 80
             print "Averaging in range", r0, r1, ":"
             for [i1, i2] in average_ranges:
                 if i2 > r0 and i1 < r1 and abs(i2-i1) > 1:
@@ -721,10 +741,10 @@ class DensityAnalysis(AnalysisBase):
             return
 
         # Set base correction factors
-        self.load_corrections(self.config_anal["density_corrections"])
+        self.load_corrections(self.config_anal["density_rogers_corrections"])
 
         # Load systematic uncertainties
-        systematics = self.config_anal["density_systematics"]
+        systematics = self.config_anal["density_rogers_systematics"]
         for typ in systematics:
             print "Loading density systematic errors for", typ
             if typ not in self.density_data:
@@ -761,6 +781,7 @@ class DensityAnalysis(AnalysisBase):
             if not (typ == "reco" or self.config_anal["density_mc"]):
                 continue
             for loc in self.locations:
+                print "load_corrections Load migration matrix", typ, loc
                 self.density_data[typ][loc]["migration_matrix"] = \
                                       src_density[typ][loc]["migration_matrix"]
                 self.density_data[typ][loc]["pdf_ratio"] = \
