@@ -179,7 +179,7 @@ def get_analysis(datasets, name, tof01_min_max, data_dir, emittance, tramlines_d
             "density_corrections_draw":True,    # True if density correctoins are to be drawn
             "density_systematics_draw":True,    # True if density systematics are to be drawn
             "density_sections":False,           # True if density sections are to be printed
-            "density_use_capped":True,          # True if density sections are to be printed
+            "density_use_capped":False,          # True if density sections are to be printed
 
             "do_extrapolation":False,
             "do_magnet_alignment":False,

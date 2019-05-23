@@ -123,7 +123,7 @@ def get_analysis(run_list, name, tof01_min_max, maus_version, data_dir, emittanc
             "density_corrections_draw":True,    # True if density correctoins are to be drawn
             "density_systematics_draw":True,    # True if density systematics are to be drawn
             "density_sections":False,           # True if density sections are to be printed
-            "density_use_capped":True,          # True if density sections are to be printed
+            "density_use_capped":False,          # True if density sections are to be printed
             "density_rogers_corrections":get_systematics_dir(emittance, "tku_base", "lH2_empty", "density_rogers"),
             "density_rogers_systematics":get_systematics(emittance, "density_rogers"),
 

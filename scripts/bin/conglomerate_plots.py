@@ -994,7 +994,7 @@ def main_paper(batch_level = 0):
     fd_1, fd_2 = {}, {}
     root_style.setup_gstyle()
     ROOT.gROOT.SetBatch(True)
-    target_dir = "output/2017-02-7-v12/"
+    target_dir = "output/2017-02-7-v13/"
     batch_level = 0
     hide_root_errors = True
     do_cuts_summary = True
@@ -1017,9 +1017,9 @@ def main_paper(batch_level = 0):
                    #CompareAmplitudeConfigMC,
                    CompareAmplitudeConfigData
                    ]
-    fd_1 = run_conglomerate(batch_level, config_list, my_dir_list, do_cuts_summary, target_dir, top_labels, right_labels)
+    #fd_1 = run_conglomerate(batch_level, config_list, my_dir_list, do_cuts_summary, target_dir, top_labels, right_labels)
     config_list = [CompareDensityRatioConfig, CompareDensityConfig]#,  CompareFractionalEmittanceConfig, 
-    #fd_2 = run_conglomerate(batch_level, config_list, my_dir_list, False, target_dir, top_labels, right_labels)
+    fd_2 = run_conglomerate(batch_level, config_list, my_dir_list, False, target_dir, top_labels, right_labels)
     print_fail_dict(fd_1)
     print_fail_dict(fd_2)
 
