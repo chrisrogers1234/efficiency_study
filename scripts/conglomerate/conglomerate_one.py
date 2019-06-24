@@ -278,9 +278,13 @@ class ConglomerateOne(object):
             hist.GetXaxis().SetTitle("")
             hist.GetYaxis().SetTitle("")
         canvas.cd()
+        # min y for x axis label:
+        x_min = 0.04 # 0.08 # 
+        # min x for y axis label:
+        y_min = 0.11 # 0.17 #
         if self.options["axis_title"]["x"] != None:
-            x_text_box = ROOT.TPaveText(0.10, 0.02, 0.97, 0.1, "NDC")
-            x_text_box.SetFillColor(0)
+            x_text_box = ROOT.TPaveText(0.10, x_min, 0.97, x_min+0.06, "NDC")
+            x_text_box.SetFillStyle(0)
             x_text_box.SetBorderSize(0)
             x_text_box.SetTextSize(0.035)
             x_text_box.SetTextAlign(21)
@@ -288,7 +292,7 @@ class ConglomerateOne(object):
             x_text_box.Draw()
             self.x_axis = x_text_box
         if self.options["axis_title"]["y"] != None:
-            y_text_box = ROOT.TLatex(0.07, 0.5, self.options["axis_title"]["y"])
+            y_text_box = ROOT.TLatex(y_min, 0.5, self.options["axis_title"]["y"])
             y_text_box.SetTextSize(0.035)
             y_text_box.SetTextAlign(21)
             y_text_box.SetTextAngle(90)
@@ -398,6 +402,16 @@ class ConglomerateOne(object):
             graph_draw["draw_order"] = range(len(graph_list))
         for i in graph_draw["draw_order"]:
             graph = graph_list[i]
+            #print "Errors for graph", graph.GetName(), graph.GetTitle(), type(graph)
+            #try:
+            #    #if graph.GetErrorY(0) < 1e-9:
+            #    #    for k in range(graph.GetN()):
+            #    #        graph.SetPointError(k, 0., graph.GetErrorY(k))
+            #    for k in range(0, 150, 5):
+            #        print k, graph.GetErrorY(k)
+            #    print
+            #except AttributeError:
+            #    pass
             if type(graph) == type(ROOT.TMultiGraph()):
                 if redraw["y_range"] != None:
                     graph.SetMinimum(redraw["y_range"][0])
@@ -447,18 +461,20 @@ class ConglomerateOne(object):
         if not self.options["mice_logo"]:
             return
         # goes around the outside for black
+        text_size = 0.08
+        text_size = 0.04
         text_box = ROOT.TPaveText(0.64, 0.8, 0.84, 0.89, "NDC")
         text_box.SetFillColor(0)
         text_box.SetBorderSize(0)
-        text_box.SetTextSize(0.04)
+        text_box.SetTextSize(text_size)
         text_box.SetTextAlign(12)
-        text_box.AddText("MICE Internal")
+        text_box.AddText("MICE")
         text_box.Draw()
         self.root_objects.append(text_box)
         text_box = ROOT.TPaveText(0.64, 0.74, 0.84, 0.8, "NDC")
         text_box.SetFillColor(0)
         text_box.SetBorderSize(0)
-        text_box.SetTextSize(0.03)
+        text_box.SetTextSize(text_size*3/4)
         text_box.SetTextAlign(12)
         text_box.AddText("ISIS Cycle 2017/02")
         text_box.AddText("and 2017/03")
@@ -467,11 +483,14 @@ class ConglomerateOne(object):
         text_box = ROOT.TPaveText(0.64, 0.65, 0.84, 0.72, "NDC")
         text_box.SetFillColor(0)
         text_box.SetBorderSize(0)
-        text_box.SetTextSize(0.03)
+        text_box.SetTextSize(text_size*3/4)
         text_box.SetTextAlign(12)
         #text_box.AddText(str(self.config.channel))
         text_box.AddText(str(self.config.beamline))
-        text_box.AddText(str(self.config.absorber))
+        text = self.config.absorber
+        text = text.replace("lH2 full", "Full LH_{2}")
+        text = text.replace("lH2 empty", "Empty LH_{2}")
+        text_box.AddText(text)
         text_box.Draw()
         self.root_objects.append(text_box)
 

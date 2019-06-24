@@ -90,7 +90,7 @@ def plot_hps(z_list, different_markers, flip_z = None):
     if different_markers:
         return graph_list
     else:
-        graph.SetName("Hall Probes")
+        graph.SetName("Hall Probe Readings")
         return [graph]
 
 def plot_tracker_stations(z_list, btot_list):
@@ -153,7 +153,7 @@ def text_box(graph_list):
     text_box.SetBorderSize(0)
     text_box.SetTextSize(0.08)
     text_box.SetTextAlign(12)
-    text_box.AddText("MICE Internal")
+    text_box.AddText("MICE")
     text_box.Draw()
     TEXT_BOXES.append(text_box)
     text_box = ROOT.TPaveText(0.83, 0.12, 0.99, 0.22, "NDC")

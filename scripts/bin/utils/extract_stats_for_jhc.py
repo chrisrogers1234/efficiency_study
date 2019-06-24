@@ -41,10 +41,10 @@ class ExtractCoolingStats(object):
     def print_one_dataset(self):
         for sample in "all_upstream", "all_downstream":
             print "   ", sample
-            for key in "pdf", "corrected_pdf", "pdf_sys_errors", "pdf_stats_errors":
+            for key in "pdf",: #, "corrected_pdf", "pdf_sys_errors", "pdf_stats_errors":
                 print "       ", key,
                 for value in self.data['reco'][sample][key]:
-                    print format(value, "4.4g")+",",
+                    print format(value),
                 print
         print
 

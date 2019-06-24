@@ -18,7 +18,7 @@ def run_analysis(jobs, cards_list, logs):
         'n_procs':n_procs,
         'extra_args':[],
         'delta_t':60,
-        'max_t':60*60*96,
+        'max_t':60*60*23*7,
         'logs':logs,
     }
     print "\nStaging", len(jobs), "jobs with cards", cards_list
@@ -40,7 +40,7 @@ def main_mc_prod_analysis():
 
 def main_mc_analysis():
     job_list = range(12)
-    cards_list = ["scripts/config/config_mc.py",]
+    cards_list = ["scripts/config/config_mc_prod.py",]
     logs = 'logs/mc-logs'
     run_analysis(job_list, cards_list, logs)
 

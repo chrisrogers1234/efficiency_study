@@ -33,7 +33,7 @@ def mc_mod(file_name, axis_range, right_labels, top_labels, verticals = None):
     if verticals != None:
         modifiers = vertical(verticals, modifiers)
     return modifiers
-  
+
 EMIT_COLORS = [ROOT.TColor(10000, 255, 255, 255),
                ROOT.TColor(10001, 245, 245, 255),
                ROOT.TColor(10002, 235, 235, 255)]
@@ -188,7 +188,16 @@ def density_recon_mod(name, beam, target_dir, top_labels, right_labels):
         "merge_options":{
             "right_labels":right_labels,
             "top_labels":top_labels,
-            "row_fill":emit_colors(),
+            "col_fill":emit_colors(),
+            "outer_box":{"fill":True},
+            "legend":[
+                {"fill_color":ROOT.kOrange+4, "transparency":0.8,
+                    "marker_color":None, "marker_style":None,
+                    "text":"Upstream"},
+                {"fill_color":ROOT.kGreen+3, "transparency":0.8,
+                    "marker_color":None, "marker_style":None,
+                    "text":"Downstream"},
+            ]
         },
         "hist_title":"",
         "file_name":name,
@@ -798,13 +807,31 @@ class CompareAmplitudeConfigData(CompareConfig): # data plots
                 "right_labels":right_labels,
                 "top_labels":top_labels,
                 "col_fill":emit_colors(),
+                "outer_box":{"fill":True},
+                "legend":[
+                    {"fill_color":ROOT.kOrange+4, "transparency":0.5,
+                     "marker_color":ROOT.kOrange+4, "marker_style":20,
+                     "text":"Upstream"},
+                    {"fill_color":ROOT.kGreen+3, "transparency":0.5,
+                     "marker_color":ROOT.kGreen+3, "marker_style":22,
+                     "text":"Downstream"},
+                ]
             },
             "rescale_x":amplitude_x_range(beam),
         }
         absolute_modifiers = {
             "merge_options":{
                 "right_labels":right_labels,
-                "top_labels":top_labels
+                "top_labels":top_labels,
+                "outer_box":{"fill":True},
+                "legend":[
+                    {"fill_color":ROOT.kOrange+4, "transparency":0.5,
+                     "marker_color":ROOT.kOrange+4, "marker_style":20,
+                     "text":"Upstream"},
+                    {"fill_color":ROOT.kGreen+3, "transparency":0.5,
+                     "marker_color":ROOT.kGreen+3, "marker_style":22,
+                     "text":"Downstream"},
+                ]
             },
             "normalise_graph":"Upstream stats",
             "redraw":{
@@ -847,7 +874,11 @@ class CompareAmplitudeConfigData(CompareConfig): # data plots
                     }
             },
             "rescale_x":amplitude_x_range(beam),
-            "write_plots":{"file_name":"amplitude_pdf_reco_correction"}
+            "write_plots":{
+                "file_name":"amplitude_pdf_reco_correction",
+                "dir":self.beam_plot_dir,
+                "formats":["png", "root", "pdf"],
+            }
         }
 
         self.conglomerate_list = [
@@ -900,7 +931,16 @@ class CompareAmplitudeConfigBoth(CompareConfig): # comparisons
             "merge_options":{
                 "right_labels":right_labels,
                 "top_labels":top_labels,
-                "col_fill":emit_colors(),
+                #"col_fill":emit_colors(),
+                "outer_box":{"fill":True},
+                "legend":[
+                    {"fill_color":ROOT.kBlue, "transparency":0.5,
+                     "marker_color":1, "marker_style":20,
+                     "text":"Measured"},
+                    {"fill_color":ROOT.kRed, "transparency":0.2,
+                     "marker_color":ROOT.kRed, "marker_style":22,
+                     "text":"Simulated"},
+                ]
             },
             "redraw":{
                 "graph":{
@@ -994,32 +1034,34 @@ def main_paper(batch_level = 0):
     fd_1, fd_2 = {}, {}
     root_style.setup_gstyle()
     ROOT.gROOT.SetBatch(True)
-    target_dir = "output/2017-02-7-v13/"
+    target_dir = "output/2017-02-7-v14/"
     batch_level = 0
     hide_root_errors = True
     do_cuts_summary = True
     if batch_level < 10 and hide_root_errors:
         ROOT.gErrorIgnoreLevel = 6000
     my_dir_list = [
-        ["2017-2.7_4-140_None",      "2017-2.7_6-140_None",      "2017-2.7_10-140_None",],
         ["2017-2.7_4-140_lH2_empty", "2017-2.7_6-140_lH2_empty", "2017-2.7_10-140_lH2_empty",],
         ["2017-2.7_4-140_lH2_full",  "2017-2.7_6-140_lH2_full",  "2017-2.7_10-140_lH2_full",],
+        ["2017-2.7_4-140_None",      "2017-2.7_6-140_None",      "2017-2.7_10-140_None",],
         ["2017-2.7_4-140_LiH",       "2017-2.7_6-140_LiH",       "2017-2.7_10-140_LiH"],
     ]
     top_labels = ["4-140", "6-140", "10-140"]
-    right_labels = ["No\nabsorber", "Empty\nLH2", "Full\nLH2", "LiH"]
+    right_labels = ["Empty\nLH_{2}", "Full\nLH_{2}", "No\nabsorber", "LiH"]
     config_list = [CompareCutsConfig, CompareData1DConfig,
                    CompareOpticsConfig, CompareOpticsMCConfig,
                    CompareGlobalsConfig, CompareMCConfig,
                    CompareData2DConfig, CompareData2DMCConfig,
-                  ]
-    config_list = [#CompareAmplitudeConfigBoth,
+                  ] 
+    config_list = [
+                   CompareAmplitudeConfigBoth,
+                   CompareAmplitudeConfigData,
+                   CompareDensityConfig,
+    ]
                    #CompareAmplitudeConfigMC,
-                   CompareAmplitudeConfigData
-                   ]
-    #fd_1 = run_conglomerate(batch_level, config_list, my_dir_list, do_cuts_summary, target_dir, top_labels, right_labels)
-    config_list = [CompareDensityRatioConfig, CompareDensityConfig]#,  CompareFractionalEmittanceConfig, 
-    fd_2 = run_conglomerate(batch_level, config_list, my_dir_list, False, target_dir, top_labels, right_labels)
+    fd_1 = run_conglomerate(batch_level, config_list, my_dir_list, do_cuts_summary, target_dir, top_labels, right_labels)
+    config_list = [CompareDensityConfig]#, CompareDensityRatioConfig,  CompareFractionalEmittanceConfig, 
+    #fd_2 = run_conglomerate(batch_level, config_list, my_dir_list, False, target_dir, top_labels, right_labels)
     print_fail_dict(fd_1)
     print_fail_dict(fd_2)
 

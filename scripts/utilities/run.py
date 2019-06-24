@@ -79,7 +79,7 @@ class Run(object):
             print "Command for sbatch", command
             command = ['sbatch',
                     '-n', '1',
-                    '--time', '3-0', # minutes, 3 days 0 hrs
+                    '--time', '6-23', # minutes, 3 days 0 hrs
                     '-p', 'ibis',
                     '-o', log_name,
                     '-e', log_name,

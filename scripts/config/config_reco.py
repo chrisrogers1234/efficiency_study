@@ -1,9 +1,4 @@
 import copy
-import json
-
-def mc_file_names(job_name, datasets):
-    file_list = ["/home/cr67/work/reco/mc/"+job_name+"/"+datasets+"/*_sim.root"]
-    return file_list
 
 def reco_file_names(run_number_list, maus):
     file_list = []
@@ -15,7 +10,13 @@ def reco_file_names(run_number_list, maus):
     return file_list
 
 def get_systematics_dir(emittance, suffix, absorber, analysis):
-    a_dir = "output/2017-02-7-Systematics-v6/plots_Simulated_2017-2.7_"+str(emittance)+\
+    vers = {
+        "amplitude":"v5",
+        "density":"v6", 
+        "density_rogers":"v6",
+        "fractional_emittance":"v5"
+    }[analysis]
+    a_dir = "output/2017-02-7-Systematics-"+vers+"/plots_Simulated_2017-2.7_"+str(emittance)+\
            "-140_"+absorber+"_Systematics_"+suffix+"/"+analysis+"/"+analysis+".json"
     return a_dir
 
@@ -232,7 +233,7 @@ class Config(object):
     cut_report[2] += ["extrapolation_cut", "hline"]
 
 
-    data_dir = "output/2017-02-7-v13/"
+    data_dir = "output/2017-02-7-v15/"
     src_dir = "Production-v3"
     analyses = []
 
